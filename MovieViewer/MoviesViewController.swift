@@ -28,8 +28,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     
     func fetchMovies( _ refreshControl: UIRefreshControl ) {
         
-        print( "** endpoint = \(endpoint)")
-        
         let url = URL(string:"https://api.themoviedb.org/3/movie/\(endpoint)?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed")
         var request = URLRequest(url: url!)
         request.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
@@ -48,12 +46,12 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             if let error = error {
                 if( self.showErrorMsg == false ) {
                     self.showErrorMsg = true
+                    // Slide down Network error message
                     UIView.animate(withDuration: 0.5, delay: 1.0, options: [.curveEaseOut], animations: {
                         self.topBarView.center.y += self.errorMsgView.frame.size.height
                         self.view.layoutIfNeeded()
                     }, completion: nil)
                     
-                    print( "error=", error)
                 }
             }
             else if let data = dataOrNil {
@@ -65,6 +63,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                     
                     if( self.showErrorMsg == true ) {
                         self.showErrorMsg = false
+                        // Slide Network error message back up
                         UIView.animate(withDuration: 0.5, delay: 1.0, options: [.curveEaseOut], animations: {
                             self.topBarView.center.y -= self.errorMsgView.frame.size.height
                             self.view.layoutIfNeeded()
@@ -98,8 +97,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         
         collectionView.isHidden = true
         tableView.isHidden = false
-        
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
         // Do any additional setup after loading the view.
         fetchMovies( refreshControl )
@@ -182,7 +179,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         
         setPosterImage( movie: movie, imageView: cell.posterView )
 
-        print( "row \(indexPath.row)")
         return cell
     }
     
@@ -202,8 +198,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     public func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCollectionCell", for: indexPath) as! MovieCollectionCell
         
-        //print( "collectionView: row = \(indexPath.row)")
-        
         var movie: NSDictionary
         
         if ( isFiltering() ) {
@@ -218,7 +212,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     }
 
     @IBAction func viewTypeSelected(_ sender: UISegmentedControl) {
-        print( sender.selectedSegmentIndex )
+
         if( sender.selectedSegmentIndex == 1 ) {
             collectionView.isHidden = false
             tableView.isHidden = true
@@ -228,32 +222,9 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             tableView.isHidden = false
         }
     }
-  
-    
-    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchActive = true;
-        print( "** searchBarTextDidBeginEditing: searchActive = \(searchActive)")
-    }
-    
-    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        searchActive = false;
-        searchBar.endEditing(true)
-        print( "** searchBarTextDidEndEditing: searchActive = \(searchActive)")
-    }
-    
 
-    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchActive = false;
         searchBar.endEditing(true)
-        print( "** searchBarSearchButtonClicked: searchActive = \(searchActive)")
-    }
- 
-    
-    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchActive = false;
-        searchBar.endEditing(true)
-        print( "** searchBarCancelButtonClicked: searchActive = \(searchActive)")
     }
     
     func isFiltering() -> Bool {
@@ -266,8 +237,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        
-        print( "searchText = \(searchText)")
+
         moviesFiltered = []
         
         for index in 0..<movies!.count {
@@ -289,7 +259,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         }
         self.tableView.reloadData()
         self.collectionView.reloadData()
-        print( "** searchBar: searchActive = \(searchActive)")
 
     }
  
@@ -318,8 +287,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         
         let detailViewController = segue.destination as! DetailViewController
         detailViewController.movie = movie
-        
-        print("prepare for segue called.")
+
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
     }
